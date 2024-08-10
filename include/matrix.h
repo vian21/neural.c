@@ -28,6 +28,8 @@ void matrix_print(Matrix *matrix);
 
 void matrix_add(Matrix *a, Matrix *b, Matrix *out);
 void matrix_sub(Matrix *a, Matrix *b, Matrix *out);
+void matrix_scalar_multiply(double lambda, Matrix *matrix, Matrix *out);
 void matrix_multiply(Matrix *a, Matrix *b, Matrix *out);
+void matrix_transpose(Matrix *matrix, Matrix *out);
 
 #endif
