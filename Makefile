@@ -10,6 +10,7 @@ OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(C_SRC)))
 
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -g
 CFLAGS += -Iinclude
+
 $(shell mkdir -p $(BUILD_DIR))
 
 all: $(BIN)
