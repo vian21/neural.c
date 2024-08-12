@@ -16,7 +16,7 @@ set_seed(){
 }
 
 Matrix *
-matrix_new(int rows, int cols){
+matrix_create(int rows, int cols){
     Matrix *matrix = (Matrix*) malloc(sizeof(Matrix));
     matrix->rows = rows;
     matrix->cols = cols;
@@ -96,7 +96,7 @@ matrix_clone(Matrix *matrix){
         ERROR("Cannot clone empty matrix!");
         return NULL;
     }
-    Matrix *clone = matrix_new(matrix->rows, matrix->cols);
+    Matrix *clone = matrix_create(matrix->rows, matrix->cols);
     for(int i = 0; i < matrix->rows; i++){
         for(int j = 0; j < matrix->cols; j++){
             clone->data[i][j] = matrix->data[i][j];

@@ -9,7 +9,7 @@ typedef struct Matrix{
 } Matrix;
 
 /* Create a Zeroed matrix with shape (rowsxcols) */
-Matrix *matrix_new(int rows, int cols);
+Matrix *matrix_create(int rows, int cols);
 
 /* Fill matrix with random values */
 void matrix_randomize(Matrix *matrix);
