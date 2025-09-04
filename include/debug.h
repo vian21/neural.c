@@ -2,26 +2,58 @@
 #define DEBUG_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
-#define ERROR(...) do{ \
-    printf("[ERROR] %s:%d ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); \
-}while(0)
+/**
+ * Debug verbosity
+ * -1: no debug logs
+ *  0: errors only
+ *  1: + INFO logs
+ *  2: + warnings
+ *  3: + TRACE logs
+ *
+ */
 
-#define WARN(...) do{ \
-    printf("[WARNING] %s:%d ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); \
-}while(0)
+extern int debug_level;
 
-#define INFO(...) do{ \
-    printf("[INFO] %s:%d ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); \
-}while(0)
+#define LOG_START()                                                            \
+    char* str_level = getenv("DEBUG");                                         \
+    debug_level = str_level ? atoi(str_level) : 0;
 
-#define TRACE(...) do{ \
-    printf("[TRACE] %s:%d ", __FILE__, __LINE__); printf(__VA_ARGS__); printf("\n"); \
-}while(0)
+#define ERROR(...)                                                             \
+    do {                                                                       \
+        if (debug_level >= 0) {                                                \
+            printf("[ERROR] %s:%d ", __FILE__, __LINE__);                      \
+            printf(__VA_ARGS__);                                               \
+            printf("\n");                                                      \
+        }                                                                      \
+    } while (0)
 
-#ifdef PRODUCTION
-    #undef TRACE
-    #define TRACE(...) do{}while(0)
-#endif
+#define WARN(...)                                                              \
+    do {                                                                       \
+        if (debug_level >= 1) {                                                \
+            printf("[WARNING] %s:%d ", __FILE__, __LINE__);                    \
+            printf(__VA_ARGS__);                                               \
+            printf("\n");                                                      \
+        }                                                                      \
+    } while (0)
+
+#define INFO(...)                                                              \
+    do {                                                                       \
+        if (debug_level >= 2) {                                                \
+            printf("[INFO] %s:%d ", __FILE__, __LINE__);                       \
+            printf(__VA_ARGS__);                                               \
+            printf("\n");                                                      \
+        }                                                                      \
+    } while (0)
+
+#define TRACE(...)                                                             \
+    do {                                                                       \
+        if (debug_level >= 3) {                                                \
+            printf("[TRACE] %s:%d ", __FILE__, __LINE__);                      \
+            printf(__VA_ARGS__);                                               \
+            printf("\n");                                                      \
+        }                                                                      \
+    } while (0)
 
 #endif

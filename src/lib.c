@@ -1,5 +1,5 @@
+#include "lib.h"
 #include <math.h>
-#include "math_defs.h"
 
 double
 sigmoid(double x) {

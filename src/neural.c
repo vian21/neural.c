@@ -1,13 +1,15 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "neural.h"
+
 #include "debug.h"
+#include "neural.h"
 
 ///////////////////////
 /// Layer ops
 ///////////////////////
-Layer *layer_create(int n_neurons, int n_inputs){
-    Layer *layer = (Layer *)malloc(sizeof(Layer));
+Layer*
+layer_create(int n_neurons, int n_inputs) {
+    Layer* layer = (Layer*)malloc(sizeof(Layer));
 
     layer->n_neurons = n_neurons;
     layer->weights = matrix_create(n_inputs, n_neurons);
@@ -20,8 +22,10 @@ Layer *layer_create(int n_neurons, int n_inputs){
     return layer;
 }
 
-int valid_layer(Layer *layer){
-    if(!valid_matrix(layer->weights) || !valid_matrix(layer->biases) || !valid_matrix(layer->outputs)){
+int
+valid_layer(Layer* layer) {
+    if (!valid_matrix(layer->weights) || !valid_matrix(layer->biases) ||
+        !valid_matrix(layer->outputs)) {
         ERROR("Invalid layer attributes!");
         return 0;
     }
@@ -29,8 +33,8 @@ int valid_layer(Layer *layer){
 }
 
 void
-layer_free(Layer *layer){
-    if(!valid_layer(layer)){
+layer_free(Layer* layer) {
+    if (!valid_layer(layer)) {
         ERROR("Cannot free invalid layer ptr!");
         return;
     }
@@ -43,8 +47,7 @@ layer_free(Layer *layer){
 }
 
 void
-feed_forward(Layer *layer, Matrix *inputs){
+feed_forward(Layer* layer, Matrix* inputs) {
     assert(valid_layer(layer));
     assert(valid_matrix(inputs));
-
 }
