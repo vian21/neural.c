@@ -1,33 +1,27 @@
-BIN_NAME = neural
-BUILD_DIR = build
-BIN = $(BUILD_DIR)/$(BIN_NAME)
-
-C_SRC = src/main.c \
-	    src/neural.c \
-		src/lib.c \
-		src/matrix.c
-OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(C_SRC)))))
-
 CC = clang
 CFLAGS = -Wall -Wextra -Werror -std=c99 -O3 -g
 CFLAGS += -Iinclude
 LDLIBS = -lm
 
-$(shell mkdir -p $(BUILD_DIR))
+BUILD_DIR = build
 
-all: $(BIN)
+LIB_SRC = src/neural.c \
+		src/lib.c \
+		src/matrix.c
+LIBS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(LIB_SRC)))))
+
+PROG_SRC = src/mnist.c
+
+$(shell mkdir -p $(BUILD_DIR))
 
 $(BUILD_DIR)/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BIN): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
-
-run: $(BIN)
-	./$(BIN)
+mnist: $(BUILD_DIR)/mnist.o $(LIBS)
+	$(CC) $(CFLAGS) $^ -o $(BUILD_DIR)/$@ $(LDLIBS) 
 
 format:
-	clang-format -i $(C_SRC) include/*.h
+	clang-format -i src/*.c include/*.h
 
 clean:
 	rm -rf $(BUILD_DIR)
