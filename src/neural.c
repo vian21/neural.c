@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdlib.h>
 
 #include "debug.h"
@@ -12,12 +11,12 @@ layer_create(int n_neurons, int n_inputs) {
     Layer* layer = (Layer*)malloc(sizeof(Layer));
 
     layer->n_neurons = n_neurons;
-    layer->weights = matrix_create(n_inputs, n_neurons);
-    layer->biases = matrix_create(1, n_neurons);
-    layer->outputs = matrix_create(1, n_neurons);
+    layer->weights = matrix_create(n_inputs, n_neurons, sizeof(double));
+    layer->biases = matrix_create(1, n_neurons, sizeof(double));
+    layer->outputs = matrix_create(1, n_neurons, sizeof(double));
 
-    matrix_randomize(layer->weights);
-    matrix_randomize(layer->biases);
+    matrix_fill_random(layer->weights);
+    matrix_fill_random(layer->biases);
 
     return layer;
 }

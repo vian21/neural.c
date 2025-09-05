@@ -14,7 +14,7 @@ PROG_SRC = src/mnist.c
 
 $(shell mkdir -p $(BUILD_DIR))
 
-$(BUILD_DIR)/%.o: src/%.c
+$(BUILD_DIR)/%.o: src/%.c include/*.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 mnist: $(BUILD_DIR)/mnist.o $(LIBS)

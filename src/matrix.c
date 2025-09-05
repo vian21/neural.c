@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -17,13 +17,15 @@ set_seed() {
 }
 
 Matrix*
-matrix_create(int rows, int cols) {
+matrix_create(int rows, int cols, size_t dtype) {
     Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
     matrix->rows = rows;
     matrix->cols = cols;
-    double** data = (double**)malloc(rows * sizeof(double**));
+    matrix->dtype = dtype;
+
+    void** data = malloc(rows * sizeof(void**));
     for (int i = 0; i < rows; i++) {
-        data[i] = (double*)malloc(cols * sizeof(double));
+        data[i] = malloc(cols * dtype);
     }
     matrix->data = data;
 
@@ -31,14 +33,16 @@ matrix_create(int rows, int cols) {
 }
 
 void
-matrix_randomize(Matrix* matrix) {
+matrix_fill_random(Matrix* matrix) {
     if (!valid_matrix(matrix)) {
         return;
     }
+
     set_seed();
+
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
-            matrix->data[i][j] = (double)rand() / (double)RAND_MAX;
+            MATRIX_SET(matrix, i, j, double, (double)rand() / (double)RAND_MAX);
         }
     }
 }
@@ -52,7 +56,7 @@ matrix_print(Matrix* matrix) {
     for (int i = 0; i < matrix->rows; i++) {
         printf("[ ");
         for (int j = 0; j < matrix->cols; j++) {
-            printf("%.2f ", matrix->data[i][j]);
+            printf("%.2f ", MATRIX_GET(matrix, i, j, double));
         }
         printf("]\n");
     }
@@ -84,9 +88,11 @@ matrix_free(Matrix* matrix) {
     if (!valid_matrix(matrix)) {
         return;
     }
+
     for (int i = 0; i < matrix->rows; i++) {
         free(matrix->data[i]);
     }
+
     free(matrix->data);
     free(matrix);
 }
@@ -97,12 +103,14 @@ matrix_clone(Matrix* matrix) {
         ERROR("Cannot clone empty matrix!");
         return NULL;
     }
-    Matrix* clone = matrix_create(matrix->rows, matrix->cols);
+
+    Matrix* clone = matrix_create(matrix->rows, matrix->cols, matrix->dtype);
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
-            clone->data[i][j] = matrix->data[i][j];
+            MATRIX_SET(clone, i, j, double, MATRIX_GET(matrix, i, j, double));
         }
     }
+
     return clone;
 }
 
@@ -117,6 +125,7 @@ matrix_add(Matrix* a, Matrix* b, Matrix* out) {
         ERROR("Cannot add invalid matrices!");
         return;
     }
+
     if (a->rows != b->rows || a->cols != b->cols) {
         ERROR("Cannot add shape (%dx%d) with (%dx%d)!",
               a->rows,
@@ -125,6 +134,7 @@ matrix_add(Matrix* a, Matrix* b, Matrix* out) {
               b->cols);
         return;
     }
+
     if (out->rows != a->rows || out->cols != a->cols) {
         ERROR("Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
@@ -133,9 +143,15 @@ matrix_add(Matrix* a, Matrix* b, Matrix* out) {
               a->cols);
         return;
     }
+
     for (int i = 0; i < a->rows; i++) {
         for (int j = 0; j < a->cols; j++) {
-            out->data[i][j] = a->data[i][j] + b->data[i][j];
+            MATRIX_SET(out,
+                       i,
+                       j,
+                       double,
+                       MATRIX_GET(a, i, j, double) +
+                           MATRIX_GET(b, i, j, double));
         }
     }
 }
@@ -146,6 +162,7 @@ matrix_sub(Matrix* a, Matrix* b, Matrix* out) {
         ERROR("Cannot subtract invalid matrices!");
         return;
     }
+
     if (a->rows != b->rows || a->cols != b->cols) {
         ERROR("Cannot subtract shape (%dx%d) with (%dx%d)!",
               a->rows,
@@ -154,6 +171,7 @@ matrix_sub(Matrix* a, Matrix* b, Matrix* out) {
               b->cols);
         return;
     }
+
     if (out->rows != a->rows || out->cols != a->cols) {
         ERROR("Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
@@ -162,9 +180,15 @@ matrix_sub(Matrix* a, Matrix* b, Matrix* out) {
               a->cols);
         return;
     }
+
     for (int i = 0; i < a->rows; i++) {
         for (int j = 0; j < a->cols; j++) {
-            out->data[i][j] = a->data[i][j] - b->data[i][j];
+            MATRIX_SET(out,
+                       i,
+                       j,
+                       double,
+                       MATRIX_GET(a, i, j, double) -
+                           MATRIX_GET(b, i, j, double));
         }
     }
 }
@@ -175,6 +199,7 @@ matrix_scalar_multiply(double lambda, Matrix* matrix, Matrix* out) {
         ERROR("[SCALAR_MUL] Cannot multiply with invalid matrix!");
         return;
     }
+
     if (out->rows != matrix->rows || out->cols != matrix->cols) {
         ERROR("[SCALAR_MUL] Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
@@ -183,9 +208,11 @@ matrix_scalar_multiply(double lambda, Matrix* matrix, Matrix* out) {
               matrix->cols);
         return;
     }
+
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
-            out->data[i][j] = matrix->data[i][j] * lambda;
+            MATRIX_SET(
+                out, i, j, double, MATRIX_GET(matrix, i, j, double) * lambda);
         }
     }
 }
@@ -196,6 +223,7 @@ matrix_multiply(Matrix* a, Matrix* b, Matrix* out) {
         ERROR("Cannot multiply invalid matrices!");
         return;
     }
+
     if (a->cols != b->rows) {
         ERROR("[MULTIPLY] Cannot multiply shape (%dx%d) with (%dx%d)!",
               a->rows,
@@ -204,6 +232,7 @@ matrix_multiply(Matrix* a, Matrix* b, Matrix* out) {
               b->cols);
         return;
     }
+
     if (out->rows != a->rows || out->cols != b->cols) {
         ERROR("[MULTIPLY] Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
@@ -215,9 +244,14 @@ matrix_multiply(Matrix* a, Matrix* b, Matrix* out) {
 
     for (int i = 0; i < a->rows; i++) {
         for (int j = 0; j < b->cols; j++) {
-            out->data[i][j] = 0;
+            MATRIX_SET(out, i, j, double, 0);
             for (int k = 0; k < a->cols; k++) {
-                out->data[i][j] += a->data[i][k] * b->data[k][j];
+                MATRIX_SET(out,
+                           i,
+                           j,
+                           double,
+                           MATRIX_GET(a, i, k, double) *
+                               MATRIX_GET(b, k, j, double));
             }
         }
     }
@@ -229,6 +263,7 @@ matrix_transpose(Matrix* matrix, Matrix* out) {
         ERROR("Cannot transpose empty/invalid matrices!");
         return;
     }
+
     if (out->rows != matrix->cols || out->cols != matrix->rows) {
         ERROR("[TRANSPOSE] Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
@@ -237,9 +272,10 @@ matrix_transpose(Matrix* matrix, Matrix* out) {
               matrix->rows);
         return;
     }
+
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
-            out->data[j][i] = matrix->data[i][j];
+            MATRIX_SET(out, j, i, double, MATRIX_GET(matrix, i, j, double));
         }
     }
 }

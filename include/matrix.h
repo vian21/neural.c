@@ -5,14 +5,19 @@
 typedef struct Matrix {
     int rows;
     int cols;
-    double** data;
+    size_t dtype;
+    void** data;
 } Matrix;
 
+#define MATRIX_GET(matrix, i, j, type) (((type**)matrix->data)[i][j])
+#define MATRIX_SET(matrix, i, j, type, value)                                  \
+    (((type**)matrix->data)[i][j] = value)
+
 /* Create a Zeroed matrix with shape (rowsxcols) */
-Matrix* matrix_create(int rows, int cols);
+Matrix* matrix_create(int rows, int cols, size_t dtype);
 
 /* Fill matrix with random values */
-void matrix_randomize(Matrix* matrix);
+void matrix_fill_random(Matrix* matrix);
 
 /* Free matrix memory */
 void matrix_free(Matrix* matrix);

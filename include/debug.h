@@ -56,4 +56,17 @@ extern int debug_level;
         }                                                                      \
     } while (0)
 
+#define assert(cond, ...)                                                      \
+    ({                                                                         \
+        if (!(cond)) {                                                         \
+            printf("[ERROR] Assertion failed %s:%d %s. ",                      \
+                   __FILE__,                                                   \
+                   __LINE__,                                                   \
+                   #cond);                                                     \
+            printf(""__VA_ARGS__);                                             \
+            printf("\n");                                                      \
+            exit(EXIT_FAILURE);                                                \
+        }                                                                      \
+    })
+
 #endif
