@@ -1,6 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <stddef.h>
+
 #define SEED 0xDEADBEEF
 typedef struct Matrix {
     int rows;
@@ -19,7 +21,7 @@ Matrix* matrix_create(int rows, int cols, size_t dtype);
 /* Fill matrix with random values */
 void matrix_fill_random(Matrix* matrix);
 
-/* Free matrix memory */
+/* Free matrix memory i.e struct + data */
 void matrix_free(Matrix* matrix);
 
 /*

@@ -17,7 +17,7 @@ $(shell mkdir -p $(BUILD_DIR))
 $(BUILD_DIR)/%.o: src/%.c include/*.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-mnist: $(BUILD_DIR)/mnist.o $(LIBS)
+mnist: $(BUILD_DIR)/mnist.o $(BUILD_DIR)/idx_parser.o $(LIBS)
 	$(CC) $(CFLAGS) $^ -o $(BUILD_DIR)/$@ $(LDLIBS) 
 
 format:
