@@ -52,6 +52,7 @@ matrix_print(Matrix* matrix) {
     if (!valid_matrix(matrix)) {
         return;
     }
+
     TRACE("Shape: %dx%d", matrix->rows, matrix->cols);
     for (int i = 0; i < matrix->rows; i++) {
         printf("[ ");

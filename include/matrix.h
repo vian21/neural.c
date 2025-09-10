@@ -15,7 +15,7 @@ typedef struct Matrix {
 #define MATRIX_SET(matrix, i, j, type, value)                                  \
     (((type**)matrix->data)[i][j] = value)
 
-/* Create a Zeroed matrix with shape (rowsxcols) */
+/* Create a Zeroed matrix with shape (rows x cols) */
 Matrix* matrix_create(int rows, int cols, size_t dtype);
 
 /* Fill matrix with random values */
