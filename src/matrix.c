@@ -69,18 +69,22 @@ valid_matrix(Matrix* matrix) {
         ERROR("Matrix ptr is NULL");
         return 0;
     }
+
     if (matrix->data == NULL) {
         ERROR("Matrix data is NULL");
         return 0;
     }
+
     if (matrix->rows <= 0) {
         ERROR("Matrix rows is invalid");
         return 0;
     }
+
     if (matrix->cols <= 0) {
         ERROR("Matrix cols is invalid");
         return 0;
     }
+
     return 1;
 }
 
