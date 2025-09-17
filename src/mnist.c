@@ -55,24 +55,37 @@ parse_args(int argc, char** argv) {
         }
 
         if (strncmp(argv[i], "-i", 2) == 0) {
-            assert(argc > i + 1, "n_samples not provided!");
+            if (argc > i + 1) {
+                ERROR("n_samples not provided!");
+                exit(EXIT_FAILURE);
+            }
 
             int n_samples = atoi(argv[++i]);
-            assert(n_samples != 0, "Invalid n_samples values provided!");
+            if (n_samples != 0) {
+                ERROR("Invalid n_samples values provided!");
+                exit(EXIT_FAILURE);
+            }
+
             opts.mode = INFERENCE;
             opts.n_samples = n_samples;
         }
 
         if (strncmp(argv[i], "-t", 2) == 0) {
-            assert(argc > i + 1, "Checkpoint filepath not provided!");
-            assert(argv[i + 1], "Invalid filepath!");
+            if (argc > i + 1) {
+                ERROR("Filepath not provided!");
+                exit(EXIT_FAILURE);
+            }
+
             opts.mode = TRAINING;
             opts.checkpoint = argv[++i];
         }
 
         if (strncmp(argv[i], "-c", 2) == 0) {
-            assert(argc > i + 1, "Checkpoint filepath not provided!");
-            assert(argv[i + 1], "Invalid filepath!");
+            if (argc > i + 1) {
+                ERROR("Checkpoint filepath not provided!");
+                exit(EXIT_FAILURE);
+            }
+
             opts.checkpoint = argv[++i];
         }
     }
@@ -122,6 +135,16 @@ main(int argc, char** argv) {
             printf("Label: %d\n", input_labels[i]);
         }
 
+        TRACE("Clean up: Deallocating matrices!");
+        for (int i = 0; i < 3; i++) {
+            matrix_free(test_images[i]);
+        }
+
+        matrix_free(test_labels[0]);
+
+        free(test_images);
+        free(test_labels);
+
         return EXIT_SUCCESS;
     }
 
@@ -163,6 +186,9 @@ main(int argc, char** argv) {
     }
 
     matrix_free(training_labels[0]);
+
+    free(training_images);
+    free(training_labels);
 
     return EXIT_SUCCESS;
 }
