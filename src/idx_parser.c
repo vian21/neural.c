@@ -27,7 +27,7 @@ read_be32(FILE* file) {
 
 Matrix**
 idx_parse(char* filepath) {
-    FILE* file = fopen(filepath, "rb");
+    FILE* file = fopen(filepath, "r");
     Matrix** m = NULL;
 
     assert(file != NULL, "%s - %s", strerror(errno), filepath);

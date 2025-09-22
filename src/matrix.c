@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -35,6 +36,15 @@ matrix_create(int rows, int cols, size_t dtype) {
 void
 matrix_fill_random(Matrix* matrix) {
     if (!valid_matrix(matrix)) {
+        return;
+    }
+
+    if (matrix->dtype != sizeof(double)) {
+        ERROR("[FILL_RAND] Can't fill matrix with dtype (%zu) with random "
+              "doubles! Must be "
+              "%zu",
+              matrix->dtype,
+              sizeof(double));
         return;
     }
 
@@ -127,12 +137,12 @@ matrix_clone(Matrix* matrix) {
 void
 matrix_add(Matrix* a, Matrix* b, Matrix* out) {
     if (!valid_matrix(a) || !valid_matrix(b) || !valid_matrix(out)) {
-        ERROR("Cannot add invalid matrices!");
+        ERROR("[ADD] Cannot add invalid matrices!");
         return;
     }
 
     if (a->rows != b->rows || a->cols != b->cols) {
-        ERROR("Cannot add shape (%dx%d) with (%dx%d)!",
+        ERROR("[ADD] Cannot add shape (%dx%d) with (%dx%d)!",
               a->rows,
               a->cols,
               b->rows,
@@ -141,7 +151,7 @@ matrix_add(Matrix* a, Matrix* b, Matrix* out) {
     }
 
     if (out->rows != a->rows || out->cols != a->cols) {
-        ERROR("Output matrix (%dx%d) has to be of shape (%dx%d)!",
+        ERROR("[ADD] Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
               out->cols,
               a->rows,
@@ -164,12 +174,12 @@ matrix_add(Matrix* a, Matrix* b, Matrix* out) {
 void
 matrix_sub(Matrix* a, Matrix* b, Matrix* out) {
     if (!valid_matrix(a) || !valid_matrix(b) || !valid_matrix(out)) {
-        ERROR("Cannot subtract invalid matrices!");
+        ERROR("[SUB] Cannot subtract invalid matrices!");
         return;
     }
 
     if (a->rows != b->rows || a->cols != b->cols) {
-        ERROR("Cannot subtract shape (%dx%d) with (%dx%d)!",
+        ERROR("[SUB] Cannot subtract shape (%dx%d) with (%dx%d)!",
               a->rows,
               a->cols,
               b->rows,
@@ -178,7 +188,7 @@ matrix_sub(Matrix* a, Matrix* b, Matrix* out) {
     }
 
     if (out->rows != a->rows || out->cols != a->cols) {
-        ERROR("Output matrix (%dx%d) has to be of shape (%dx%d)!",
+        ERROR("[SUB] Output matrix (%dx%d) has to be of shape (%dx%d)!",
               out->rows,
               out->cols,
               a->rows,
@@ -214,6 +224,13 @@ matrix_scalar_multiply(double lambda, Matrix* matrix, Matrix* out) {
         return;
     }
 
+    if (matrix->dtype != out->dtype) {
+        ERROR("[SCALAR_MUL] Output matrix must be dtype (%zu) not (%zu)!",
+              matrix->dtype,
+              out->dtype);
+        return;
+    }
+
     for (int i = 0; i < matrix->rows; i++) {
         for (int j = 0; j < matrix->cols; j++) {
             MATRIX_SET(
@@ -225,7 +242,7 @@ matrix_scalar_multiply(double lambda, Matrix* matrix, Matrix* out) {
 void
 matrix_multiply(Matrix* a, Matrix* b, Matrix* out) {
     if (!valid_matrix(a) || !valid_matrix(b) || !valid_matrix(out)) {
-        ERROR("Cannot multiply invalid matrices!");
+        ERROR("[MULTIPLY] Cannot multiply invalid matrices!");
         return;
     }
 
@@ -251,12 +268,27 @@ matrix_multiply(Matrix* a, Matrix* b, Matrix* out) {
         for (int j = 0; j < b->cols; j++) {
             MATRIX_SET(out, i, j, double, 0);
             for (int k = 0; k < a->cols; k++) {
-                MATRIX_SET(out,
-                           i,
-                           j,
-                           double,
-                           MATRIX_GET(a, i, k, double) *
-                               MATRIX_GET(b, k, j, double));
+                switch (a->dtype) {
+                case sizeof(double):
+                    MATRIX_SET(out,
+                               i,
+                               j,
+                               double,
+                               MATRIX_GET(a, i, k, double) *
+                                   MATRIX_GET(b, k, j, double));
+                    break;
+                case sizeof(uint8_t):
+                    MATRIX_SET(out,
+                               i,
+                               j,
+                               double,
+                               MATRIX_GET(a, i, k, uint8_t) *
+                                   MATRIX_GET(b, k, j, double));
+                    break;
+                default:
+                    ERROR("[MULTIPLY] Unhandled dtype(%zu)", a->dtype);
+                    exit(EXIT_FAILURE);
+                }
             }
         }
     }
@@ -265,7 +297,7 @@ matrix_multiply(Matrix* a, Matrix* b, Matrix* out) {
 void
 matrix_transpose(Matrix* matrix, Matrix* out) {
     if (!valid_matrix(matrix) || !valid_matrix(out)) {
-        ERROR("Cannot transpose empty/invalid matrices!");
+        ERROR("[TRANSPOSE] Cannot transpose empty/invalid matrices!");
         return;
     }
 
@@ -275,6 +307,13 @@ matrix_transpose(Matrix* matrix, Matrix* out) {
               out->cols,
               matrix->cols,
               matrix->rows);
+        return;
+    }
+
+    if (matrix->dtype != out->dtype) {
+        ERROR("[TRANSPOSE] Output matrix must be dtype (%zu) not (%zu)!",
+              matrix->dtype,
+              out->dtype);
         return;
     }
 

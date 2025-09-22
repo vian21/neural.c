@@ -19,6 +19,9 @@ negative
  */
 double sigmoid(double x);
 
+/* derivative of sigmoid function */
+double d_sigmoid(double x);
+
 /*
  * tanh
  *

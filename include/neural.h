@@ -12,8 +12,8 @@ typedef struct Layer {
 } Layer;
 
 typedef struct Network {
-    int depth;
-    int capacity;
+    int depth;    // Maximum network depth
+    int capacity; // Current network depth
 
     Layer** layers;
     double (*act_func)(double);

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "checkpoints.h"
 #include "debug.h"
 #include "idx.h"
 #include "lib.h"
@@ -55,13 +56,13 @@ parse_args(int argc, char** argv) {
         }
 
         if (strncmp(argv[i], "-i", 2) == 0) {
-            if (argc > i + 1) {
+            if (argc < i + 1) {
                 ERROR("n_samples not provided!");
                 exit(EXIT_FAILURE);
             }
 
             int n_samples = atoi(argv[++i]);
-            if (n_samples != 0) {
+            if (n_samples == 0) {
                 ERROR("Invalid n_samples values provided!");
                 exit(EXIT_FAILURE);
             }
@@ -71,7 +72,7 @@ parse_args(int argc, char** argv) {
         }
 
         if (strncmp(argv[i], "-t", 2) == 0) {
-            if (argc > i + 1) {
+            if (argc < i + 1) {
                 ERROR("Filepath not provided!");
                 exit(EXIT_FAILURE);
             }
@@ -81,7 +82,7 @@ parse_args(int argc, char** argv) {
         }
 
         if (strncmp(argv[i], "-c", 2) == 0) {
-            if (argc > i + 1) {
+            if (argc < i + 1) {
                 ERROR("Checkpoint filepath not provided!");
                 exit(EXIT_FAILURE);
             }
@@ -179,6 +180,9 @@ main(int argc, char** argv) {
     TRACE("Running Backpropagation");
 
     matrix_print(output->outputs);
+
+    // Saving checkpoint
+    checkpoint_save(network, opts.checkpoint);
 
     TRACE("Clean up: Deallocating matrices!");
     for (int i = 0; i < 3; i++) {

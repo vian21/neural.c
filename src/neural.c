@@ -94,6 +94,7 @@ forward_pass(Network* net, Matrix* input) {
     Matrix* tmp =
         matrix_create(input->rows, curr_layer->weights->cols, sizeof(double));
 
+    TRACE("Multiplying input layer x layer[0]");
     matrix_multiply(input, curr_layer->weights, tmp);
     matrix_add(tmp, curr_layer->biases, curr_layer->outputs);
     matrix_free(tmp);
@@ -102,10 +103,14 @@ forward_pass(Network* net, Matrix* input) {
         prev_layer = net->layers[i - 1];
         curr_layer = net->layers[i];
 
+        assert(prev_layer);
+        assert(curr_layer);
+
         Matrix* tmp = matrix_create(prev_layer->outputs->rows,
                                     curr_layer->weights->cols,
                                     sizeof(double));
 
+        TRACE("Multiplying layer[%d] x layer[%d]", i - 1, i);
         matrix_multiply(prev_layer->outputs, curr_layer->weights, tmp);
         matrix_add(tmp, curr_layer->biases, curr_layer->outputs);
 

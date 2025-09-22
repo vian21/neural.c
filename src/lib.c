@@ -7,6 +7,12 @@ sigmoid(double x) {
 }
 
 double
+d_sigmoid(double x) {
+    double sig = sigmoid(x);
+    return sig * (1 - sig);
+}
+
+double
 tanh(double x) {
     return 2 * sigmoid(2 * x) - 1;
 }
